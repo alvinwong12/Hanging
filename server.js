@@ -9,12 +9,13 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.get('/', function(req, res){
-	data = { "id": "RandomId",
-  "username": "MyUserName",
-  "location": { "latitude": 37.785834, "longitude": -122.406417 },
-  "status" : "Hey there! I am hanging"
-}
-	database.write(data, "users", res)
+// 	data = { "id": "RandomId",
+//   "username": "MyUserName",
+//   "location": { "latitude": 37.785834, "longitude": -122.406417 },
+//   "status" : "Hey there! I am hanging"
+// }
+// 	database.write(data, "users", res)
+	res.send("Welcome")
 })
 
 app.get('/nearby', function(req,res){
@@ -30,8 +31,8 @@ app.post("/rest/submit", function (req, res) {
     var user = req.body;
     data = { "id": user.id,
         "username": user.id,
-        "location": { "latitude": user.id.location.latitude, "longitude": user.id.location.longitude },
-        "status" : user.id.status
+        "location": { "latitude": user.location.latitude, "longitude": user.location.longitude },
+        "status" : user.status
     }
     console.log(user)
     database.write(data, "users", res)
