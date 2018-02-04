@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/alvinwong12/Hanging/issues"
   },
-  "homepage": "https://github.com/alvinwong12/Hanging#readme"
+  "homepage": "https://github.com/alvinwong12/Hanging#readme",
+  "dependencies": {
+    "express": "^4.16.2"
+  }
 }
