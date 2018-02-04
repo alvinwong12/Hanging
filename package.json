@@ -18,6 +18,7 @@
   "homepage": "https://github.com/alvinwong12/Hanging#readme",
   "dependencies": {
     "express": "^4.16.2",
-    "firebase-admin": "^5.8.2"
+    "firebase-admin": "^5.8.2",
+    "geofire": "^4.1.2"
   }
 }
