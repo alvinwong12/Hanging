@@ -14,24 +14,21 @@ var ref = db.ref();
 var geoFire = new GeoFire(ref.child("users"))
 var nearBy = []
 
-function writeLocation(data, path){
+function writeLocation(data){
   geoFire.set(data.id, [data.location.latitude, data.location.longitude]).then(function() {
-  console.log("Provided key has been added to GeoFire");
-}, function(error) {
-  console.log("Error: " + error);
-});
-
+    console.log("Provided key has been added to GeoFire");
+  }, function(error) {
+    console.log("Error: " + error);
+  });
 }
 
 
-
-
 function write(data, path, res=null){
-  writeLocation(data, "users")
   if (!data || !path){
     console.log("Missing data or path")
     return false
   }
+  if (data['location']) writeLocation(data);
   var pathRef = ref.child(path + "/" + data.id + "/info");
   pathRef.set(data, function(err){
     if (err){
@@ -41,7 +38,6 @@ function write(data, path, res=null){
       if (res) res.status(200).send("good");
     }
   })
-  //writeLocation(data, "users")
 };
 
 function read(path, key){
@@ -53,78 +49,45 @@ function read(path, key){
 }
 
 
-
-function testWrite(data, path="test"){
+function testWrite(data=null, path="users"){
   testData = {
-    testAgent: "testing-1"
+    "id": "testingAgent",
+    "username": "testingAgent",
+    "location": { "latitude": 37.785834, "longitude": -122.406417 },
+    "status" : "Hey there! I am tsting" 
   }
   data = data || (data=testData)
   write(data, path)
 }
 
-function findNearBy(location=null, radius=null, res=null){
+function findNearBy(location=null, radius=10, res=null){
   if ((!location || !radius) && res) res.send("BAD");
   if ((!location || !radius) && !res) return;
   var geoQuery = geoFire.query({
-  center: location,
-  radius: radius
-});
-geoQuery.on("key_entered", function(id, location, distance) {
-  console.log(id + " entered query at " + location + " (" + distance + " km from center)");
-  nearBy.push({
-    id: id,
-    location: location,
-    distance: distance
+    center: location,
+    radius: radius
+  });
+  geoQuery.on("key_entered", function(id, location, distance) {
+    console.log(id + " entered query at " + location + " (" + distance + " km from center)");
+    nearBy.push({
+      id: id,
+      location: location,
+      distance: distance
+    })
+  });
+  geoQuery.on("ready", function(){
+    if (res) return res.send(nearBy)
   })
-});
-geoQuery.on("ready", function(){
-  if (res) res.send(nearBy)
-})
 }
 
 function getNearBy(){
   return nearBy
 }
 
-// write("testing-3", "users/test")
-// read("users", "test")
-// testWrite()
-
-
-//write({alvin: "alvin wong"}, "users")
-
-
-
-
-data = { "id": "RandomId",
-  "username": "MyUserName",
-  "location": { "latitude": 37.785834, "longitude": -122.406417 },
-  "status" : "Hey there! I am hanging" 
-}
-
-
-//write(data, "users")
-//writeLocation(data, "users")
-
-testData = { "id": "testAgent-1",
-  "username": "testAgent-1",
-  "location": { "latitude": 38, "longitude": -125 },
-  "status" : "Hey there! I am hanging" 
-}
-
-//write(testData, "users")
-//writeLocation(testData, "users")
-
-//writeLocation(data, "")
-//writeLocation(testData, "")
-//write(data, "users")
-//write(testData, "users")
-
-
-//findNearBy()
-
 module.exports = {
   write, 
-  findNearBy 
-
+  writeLocation,
+  findNearBy, 
+  read,
+  testWrite
 }
