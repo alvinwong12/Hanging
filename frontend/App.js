@@ -5,6 +5,9 @@ import { Image, KeyboardAvoidingView, StyleSheet, Text, View, FlatList, Button, 
 // import EStyleSheet from 'react-native-extended-stylesheet';
 // EStyleSheet.build({ "$outline": 1 });
 
+const aws_url = "https://ec2-35-182-59-99.ca-central-1.compute.amazonaws.com:8000";
+const local_url = "";
+
 const styles = require('./styles.js');
 const DEFAULT_STATUS = "Hey there! I am hanging";
 const DUMMY_RESPONSE = {
@@ -44,8 +47,8 @@ export default class App extends React.Component {
     super(props);
 
     this.state = {
-      id: "RandomId",
-      username: "MyUsername",
+      id: "tkh",
+      username: "tkh",
       latitude: null,
       longitude: null,
       error: null,
@@ -67,22 +70,28 @@ export default class App extends React.Component {
   }
 
   sendLocation() {
-    fetch('http://localhost:8000/rest/submit', {
+    let postData = {
+      id: this.state.id,
+      username: this.state.username,
+      location: {
+        latitude: this.state.latitude,
+        longitude: this.state.longitude,
+      },
+      status: this.state.status,
+    }
+    
+    console.log("POSTING THIS STATE:", postData);
+
+
+    fetch(aws_url + '/rest/submit', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        id: this.state.id,
-        username: this.state.username,
-        location: {
-          latitude: this.state.latitude,
-          longitude: this.state.longitude,
-        },
-        status: this.state.status,
-      }),
-    }).then((response) => response.json())
+      body: JSON.stringify(postData),
+    })
+    // .then((response) => response.json())
       .then((responseJson) => {
         console.log(responseJson);
         return responseJson
@@ -117,15 +126,15 @@ export default class App extends React.Component {
       }],
     });
 
-    fetch('http://localhost:8000/nearby')
+    fetch(aws_url + '/nearby')
       .then((response) => response.json())
       .then((responseJson) => {
-        console.log(responseJson);
-        
+        console.log("responseJson: ", responseJson);
+
         this.setState({
           ...this.state,
           list: [...this.state.list,
-            ...responseJson
+          ...responseJson
           ],
         });
 
@@ -168,7 +177,14 @@ export default class App extends React.Component {
         />
         <KeyboardAvoidingView behavior="padding" style={{ flexDirection: 'row', backgroundColor: "#ff9a91", borderRadius: 4, borderWidth: 0, }}>
           {/* <View style={{ flexDirection: 'row' }}> */}
-          <TextInput placeholder={this.state.status} style={styles.input} onChangeText={(text) => this.setState({ text })} />
+          <TextInput
+            placeholder={this.state.status}
+            style={styles.input}
+            onChangeText={(text) => this.setState({ 
+              ...this.state,
+              status: text,
+             })}
+            value={this.state.status} />
 
           <Button
             onPress={() => this.OnPressUpdate()}
