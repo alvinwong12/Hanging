@@ -3,7 +3,7 @@ var app = express();
 var database = require('./utils/database')
 var bodyParser = require('body-parser');
 
-PORT = 8000
+PORT = 8000 || process.env.PORT
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -41,3 +41,4 @@ app.post("/rest/submit", function (req, res) {
 app.listen(PORT, function(){
 	console.log("listening")
 })
+

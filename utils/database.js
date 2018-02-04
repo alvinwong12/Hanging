@@ -40,11 +40,12 @@ function write(data, path, res=null){
   })
 };
 
-function read(path, key){
+function read(path, key, done=false, person=null, extraAction=null){
   if (!path || !key) return;
   var pathRef = ref.child(path)
   pathRef.once("value", function(snap) {
-    console.log(snap.child(key).val());
+    //console.log(snap.child(key).val());
+    if (extraAction) extraAction(person, snap, key, done);
   });
 }
 
@@ -60,23 +61,35 @@ function testWrite(data=null, path="users"){
   write(data, path)
 }
 
-function findNearBy(location=null, radius=10, res=null){
-  if ((!location || !radius) && res) res.send("BAD");
-  if ((!location || !radius) && !res) return;
+function findNearBy(myLocation=null, radius=10, res=null){
+  if ((!myLocation || !radius) && res) res.send("BAD");
+  if ((!myLocation || !radius) && !res) return;
+  nearBy = []
   var geoQuery = geoFire.query({
-    center: location,
+    center: myLocation,
     radius: radius
   });
   geoQuery.on("key_entered", function(id, location, distance) {
     console.log(id + " entered query at " + location + " (" + distance + " km from center)");
-    nearBy.push({
-      id: id,
-      location: location,
-      distance: distance
-    })
+    if (data.id != id) {
+      nearBy.push({
+          id: id,
+          location: location,
+          distance: distance
+      })  
+    }
   });
   geoQuery.on("ready", function(){
-    if (res) return res.send(nearBy)
+    console.log(nearBy)
+    for (i=0; i<nearBy.length; i++){
+      var done = i+1 == nearBy.length ? true : false
+      read("users", nearBy[i].id+"/info", done, nearBy[i], function(person, snap=null, key=null, done=false){
+        person['username'] = snap.child(key).val()['username'];
+        person['status'] = snap.child(key).val()['status'];
+        if (res && done) return res.send(nearBy);
+      })
+      
+    }
   })
 }
 
