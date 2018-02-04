@@ -74,7 +74,7 @@ function findNearBy(myLocation=null, radius=10, res=null){
     if (data.id != id) {
       nearBy.push({
           id: id,
-          location: location,
+          location: {"latitude": location[0], "longitude": location[1]},
           distance: distance
       })  
     }
