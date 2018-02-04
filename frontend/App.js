@@ -48,17 +48,16 @@ export default class App extends React.Component {
       }),
     }).then((response) => response.json())
       .then((responseJson) => {
-        console.log(responseJson);
-        return responseJson
+        this.setState({
+          ...this.state,
+          list: [{ key: 5 }, { key: 7 }, {key : responseJson.username}, ],
+        })
       }).catch((error) => console.log(error))
   }
 
   OnPressRefresh() {
     this.sendLocation();
-    this.setState({
-      ...this.state,
-      list: [{ key: 5 }, { key: 7 },],
-    })
+    
   }
 
   render() {
